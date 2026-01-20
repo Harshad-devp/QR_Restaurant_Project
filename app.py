@@ -22,24 +22,30 @@ def menu():
 
 @app.route("/add/<int:item_id>")
 def add_to_cart(item_id):
-    if "cart" not in session:
-        session["cart"] = []
 
-    session["cart"].append(item_id)
+    # FORCE reset if cart is list (Day 5 leftover)
+    if "cart" not in session or isinstance(session["cart"], list):
+        session["cart"] = {}
+
+    cart = session["cart"]
+
+    # Get correct price from menu_items
+    price = 0
+    for item in menu_items:
+        if item["id"] == item_id:
+            price = item["price"]
+            break
+
+    if str(item_id) in cart:
+        cart[str(item_id)]["qty"] += 1
+    else:
+        cart[str(item_id)] = {
+            "price": price,
+            "qty": 1
+        }
+
+    session["cart"] = cart
     return redirect(url_for("menu"))
-
-@app.route("/cart")
-def cart():
-    cart_items = []
-    cart_ids = session.get("cart", [])
-
-    for id in cart_ids:
-        for item in menu_items:
-            if item["id"] == id:
-                cart_items.append(item)
-
-    return render_template("cart.html", cart=cart_items)
-
 
 
 if __name__ == "__main__":
