@@ -11,7 +11,9 @@
     {% for item in menu %}
         <li>
             {{ item.name }} - ₹{{ item.price }}
+            <a href="{{ url_for('add_to_cart', item_id=item.id) }}">
             <button>Add to Order</button>
+</a>
         </li>
     {% endfor %}
 </ul>
