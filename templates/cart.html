@@ -4,18 +4,31 @@
     <title>Your Order</title>
 </head>
 <body>
-    <h1>Your Order</h1>
 
-    {% if cart %}
-        <ul>
-            {% for item in cart %}
-                <li>{{ item.name }} - ₹{{ item.price }}</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>Your cart is empty</p>
-    {% endif %}
+<h1>Your Order</h1>
 
-    <a href="/menu">Back to Menu</a>
+{% if cart %}
+<ul>
+    {% for item in cart %}
+        <li>
+            {{ item.name }} |
+            Qty: {{ item.qty }} |
+            Price: ₹{{ item.price }} |
+            Total: ₹{{ item.total }}
+        </li>
+    {% endfor %}
+</ul>
+
+<hr>
+
+<h3>Grand Total: ₹{{ grand_total }}</h3>
+
+{% else %}
+<p>Your cart is empty</p>
+{% endif %}
+
+<br>
+<a href="{{ url_for('menu') }}">Back to Menu</a>
+
 </body>
 </html>

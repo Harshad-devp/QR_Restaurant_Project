@@ -12,13 +12,49 @@
         <li>
             {{ item.name }} - ₹{{ item.price }}
             <a href="{{ url_for('add_to_cart', item_id=item.id) }}">
-            <button>Add to Order</button>
-</a>
+                <button>Add to Order</button>
+            </a>
         </li>
     {% endfor %}
 </ul>
 
+<hr>
+
+<h2>Your Cart</h2>
+
+{% if session.cart %}
+{% set ns = namespace(total=0) %}
+<ul>
+    {% for item_id, data in session.cart.items() %}
+        {% for item in menu %}
+            {% if item.id == item_id|int %}
+                <li>
+                    {{ item.name }} |
+                    Qty: {{ data.qty }} |
+                    Price: ₹{{ data.price }} |
+                    Total: ₹{{ data.price * data.qty }}
+                    <a href="{{ url_for('remove_from_cart', item_id=item.id) }}">❌</a>
+                </li>
+                {% set ns.total = ns.total + (data.price * data.qty) %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+</ul>
+
+<strong>Grand Total: ₹{{ ns.total }}</strong>
+{% else %}
+<p>Cart is empty</p>
+{% endif %}
+
+
+<br><br>
 <a href="/">Back to Home</a>
+
+<br><br>
+<a href="{{ url_for('cart') }}">
+    <button>View Cart</button>
+</a>
+
 
 </body>
 </html>
