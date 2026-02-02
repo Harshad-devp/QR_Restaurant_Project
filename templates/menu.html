@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Menu</title>
+    <title>Restaurant Menu</title>
 </head>
 <body>
 
-<h1>Restaurant Menu</h1>
+<h1>Restaurant Menu – Table {{ table_id }}</h1>
 
+<hr>
+
+<h2>Menu</h2>
 <ul>
     {% for item in menu %}
         <li>
@@ -22,17 +25,18 @@
 
 <h2>Your Cart</h2>
 
-{% if session.cart %}
+{% if tables and table_id|string in tables %}
+{% set cart = tables[table_id|string] %}
 {% set ns = namespace(total=0) %}
+
 <ul>
-    {% for item_id, data in session.cart.items() %}
+    {% for item_id, data in cart.items() %}
         {% for item in menu %}
             {% if item.id == item_id|int %}
                 <li>
-                    {{ item.name }} |
-                    Qty: {{ data.qty }} |
-                    Price: ₹{{ data.price }} |
-                    Total: ₹{{ data.price * data.qty }}
+                    {{ item.name }}
+                    | Qty: {{ data.qty }}
+                    | ₹{{ data.price * data.qty }}
                     <a href="{{ url_for('remove_from_cart', item_id=item.id) }}">❌</a>
                 </li>
                 {% set ns.total = ns.total + (data.price * data.qty) %}
@@ -42,19 +46,19 @@
 </ul>
 
 <strong>Grand Total: ₹{{ ns.total }}</strong>
+
 {% else %}
 <p>Cart is empty</p>
 {% endif %}
 
+<hr>
 
-<br><br>
-<a href="/">Back to Home</a>
-
-<br><br>
 <a href="{{ url_for('cart') }}">
     <button>View Cart</button>
 </a>
 
+<br><br>
+<a href="/">Back to Home</a>
 
 </body>
 </html>

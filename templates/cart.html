@@ -5,30 +5,35 @@
 </head>
 <body>
 
-<h1>Your Order</h1>
+<h1>Your Order – Table {{ table_id }}</h1>
 
 {% if cart %}
 <ul>
     {% for item in cart %}
         <li>
-            {{ item.name }} |
-            Qty: {{ item.qty }} |
-            Price: ₹{{ item.price }} |
-            Total: ₹{{ item.total }}
+            {{ item.name }}
+            | Qty: {{ item.qty }}
+            | Price: ₹{{ item.price }}
+            | Total: ₹{{ item.total }}
         </li>
     {% endfor %}
 </ul>
 
 <hr>
-
-<h3>Grand Total: ₹{{ grand_total }}</h3>
+<strong>Grand Total: ₹{{ grand_total }}</strong>
 
 {% else %}
 <p>Your cart is empty</p>
 {% endif %}
 
-<br>
-<a href="{{ url_for('menu') }}">Back to Menu</a>
+<br><br>
+
+<a href="{{ url_for('menu', table_id=table_id) }}">
+    <button>Back to Menu</button>
+</a>
+
+<br><br>
+<a href="/">Back to Home</a>
 
 </body>
 </html>
