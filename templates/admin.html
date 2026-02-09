@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; padding: 20px;">
+
+    <!-- Header -->
+    <h1>🍽️ Restaurant Admin Dashboard</h1>
+    <p>Live Orders & Menu Management</p>
+
+    <hr>
+
+    <!-- ============================= -->
+    <!-- ADD NEW MENU ITEM (ADMIN) -->
+    <!-- ============================= -->
+    <h2>Add New Menu Item</h2>
+
+    <form method="post" action="/admin/add">
+        <input type="text" name="name" placeholder="Item name" required>
+        <input type="number" name="price" placeholder="Price" required>
+        <button type="submit">Add Item</button>
+    </form>
+
+    <hr>
+
+    <!-- ============================= -->
+    <!-- LIVE ORDERS (TABLE-WISE) -->
+    <!-- ============================= -->
+    <h2>Live Table Orders</h2>
+
+    {% if tables %}
+        {% for table in tables %}
+            <h3>Table {{ table["table_id"] }}</h3>
+
+            {% if table["items"] %}
+                <ul>
+                    {% for item in table["items"] %}
+                        <li>
+                            {{ item["name"] }}
+                            | Qty: {{ item["qty"] }}
+                            | Total: ₹{{ item["total"] }}
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <strong>Table Total: ₹{{ table["total"] }}</strong>
+            {% else %}
+                <p>No items ordered</p>
+            {% endif %}
+
+            <hr>
+        {% endfor %}
+    {% else %}
+        <p>No active orders</p>
+    {% endif %}
+
+    <!-- Navigation -->
+    <a href="/">⬅ Back to Home</a>
+
+</body>
+</html>

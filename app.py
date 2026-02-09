@@ -1,31 +1,31 @@
-from flask import Flask, render_template, session, redirect, url_for
+from flask import Flask, render_template, session, redirect, url_for, request
+
+from database import init_db, get_db_connection
+from flask import request
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-# -------------------------------
-# Temporary Menu Database
-# -------------------------------
-menu_items = [
-    {"id": 1, "name": "Margherita Pizza", "price": 199},
-    {"id": 2, "name": "Veg Burger", "price": 99},
-    {"id": 3, "name": "Pasta", "price": 149},
-    {"id": 4, "name": "Cold Coffee", "price": 79}
-]
-
-# -------------------------------
+# =================================================
 # Home Page – Table Selection
-# -------------------------------
+# =================================================
 @app.route("/")
 def home():
     return render_template("index.html")
 
-# -------------------------------
-# Menu Page (Table-wise)
-# -------------------------------
+# =================================================
+# Menu Page (Table-wise) – DB BASED
+# =================================================
 @app.route("/menu/<int:table_id>")
 def menu(table_id):
     session["table_id"] = table_id
+
+    conn = get_db_connection()
+    menu_items = conn.execute(
+        "SELECT id, name, price FROM menu"
+    ).fetchall()
+    conn.close()
+
     return render_template(
         "menu.html",
         menu=menu_items,
@@ -33,9 +33,9 @@ def menu(table_id):
         tables=session.get("tables", {})
     )
 
-# -------------------------------
+# =================================================
 # Add Item to Cart (Table-wise)
-# -------------------------------
+# =================================================
 @app.route("/add/<int:item_id>")
 def add_to_cart(item_id):
 
@@ -49,45 +49,46 @@ def add_to_cart(item_id):
 
     cart = session["tables"][table_id]
 
-    # find item price
-    price = 0
-    for item in menu_items:
-        if item["id"] == item_id:
-            price = item["price"]
-            break
+    conn = get_db_connection()
+    item = conn.execute(
+        "SELECT price FROM menu WHERE id = ?",
+        (item_id,)
+    ).fetchone()
+    conn.close()
+
+    if not item:
+        return redirect(url_for("menu", table_id=session["table_id"]))
 
     if str(item_id) in cart:
         cart[str(item_id)]["qty"] += 1
     else:
         cart[str(item_id)] = {
-            "price": price,
+            "price": item["price"],
             "qty": 1
         }
 
     session["tables"][table_id] = cart
-    session.modified = True   # 🔥 VERY IMPORTANT
+    session.modified = True
 
     return redirect(url_for("menu", table_id=session["table_id"]))
 
-# -------------------------------
-# Remove Item from Cart (Table-wise)
-# -------------------------------
+# =================================================
+# Remove Item from Cart
+# =================================================
 @app.route("/remove/<int:item_id>")
 def remove_from_cart(item_id):
 
     table_id = str(session["table_id"])
 
     if "tables" in session and table_id in session["tables"]:
-        cart = session["tables"][table_id]
-        cart.pop(str(item_id), None)
-        session["tables"][table_id] = cart
-        session.modified = True   # 🔥 VERY IMPORTANT
+        session["tables"][table_id].pop(str(item_id), None)
+        session.modified = True
 
     return redirect(url_for("menu", table_id=session["table_id"]))
 
-# -------------------------------
-# Cart Page (Table-wise)
-# -------------------------------
+# =================================================
+# Cart Page
+# =================================================
 @app.route("/cart")
 def cart():
 
@@ -96,18 +97,26 @@ def cart():
     table_id = str(session.get("table_id"))
 
     if "tables" in session and table_id in session["tables"]:
+
+        conn = get_db_connection()
+
         for item_id, data in session["tables"][table_id].items():
-            for item in menu_items:
-                if item["id"] == int(item_id):
-                    item_total = data["price"] * data["qty"]
-                    grand_total += item_total
-                    cart_data.append({
-                        "id": item["id"],
-                        "name": item["name"],
-                        "price": data["price"],
-                        "qty": data["qty"],
-                        "total": item_total
-                    })
+            item = conn.execute(
+                "SELECT name FROM menu WHERE id = ?",
+                (item_id,)
+            ).fetchone()
+
+            if item:
+                total = data["price"] * data["qty"]
+                grand_total += total
+                cart_data.append({
+                    "name": item["name"],
+                    "qty": data["qty"],
+                    "price": data["price"],
+                    "total": total
+                })
+
+        conn.close()
 
     return render_template(
         "cart.html",
@@ -116,8 +125,67 @@ def cart():
         table_id=table_id
     )
 
-# -------------------------------
+# =================================================
+# Admin Dashboard – Live Orders
+# =================================================
+@app.route("/admin")
+def admin_dashboard():
+
+    tables = session.get("tables", {})
+    admin_data = []
+
+    conn = get_db_connection()
+
+    for table_id, cart in tables.items():
+        table_total = 0
+        items = []
+
+        for item_id, data in cart.items():
+            item = conn.execute(
+                "SELECT name FROM menu WHERE id = ?",
+                (item_id,)
+            ).fetchone()
+
+            if item:
+                total = data["price"] * data["qty"]
+                table_total += total
+                items.append({
+                    "name": item["name"],
+                    "qty": data["qty"],
+                    "total": total
+                })
+
+        admin_data.append({
+            "table_id": table_id,
+            "items": items,
+            "total": table_total
+        })
+
+    conn.close()
+
+    return render_template("admin.html", tables=admin_data)
+
+from flask import request
+
+@app.route("/admin/add", methods=["POST"])
+def admin_add_item():
+    name = request.form["name"]
+    price = request.form["price"]
+
+    conn = get_db_connection()
+    conn.execute(
+        "INSERT INTO menu (name, price) VALUES (?, ?)",
+        (name, price)
+    )
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("admin_dashboard"))
+
+
+# =================================================
 # Run Server
-# -------------------------------
+# =================================================
 if __name__ == "__main__":
+    init_db()        # ✅ ONLY ONCE
     app.run(debug=True)

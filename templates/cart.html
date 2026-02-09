@@ -1,39 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Your Order</title>
 </head>
-<body>
 
-<h1>Your Order – Table {{ table_id }}</h1>
+<body style="font-family: Arial, sans-serif; padding: 20px;">
 
-{% if cart %}
-<ul>
-    {% for item in cart %}
-        <li>
-            {{ item.name }}
-            | Qty: {{ item.qty }}
-            | Price: ₹{{ item.price }}
-            | Total: ₹{{ item.total }}
-        </li>
-    {% endfor %}
-</ul>
+    <!-- Page Title -->
+    <h1>🧾 Your Order – Table {{ table_id }}</h1>
 
-<hr>
-<strong>Grand Total: ₹{{ grand_total }}</strong>
+    {% if cart %}
+        <!-- Cart Items -->
+        <ul>
+            {% for item in cart %}
+                <li>
+                    {{ item.name }}
+                    | Qty: {{ item.qty }}
+                    | Price: ₹{{ item.price }}
+                    | Total: ₹{{ item.total }}
+                </li>
+            {% endfor %}
+        </ul>
 
-{% else %}
-<p>Your cart is empty</p>
-{% endif %}
+        <hr>
 
-<br><br>
+        <!-- Grand Total -->
+        <strong>Grand Total: ₹{{ grand_total }}</strong>
 
-<a href="{{ url_for('menu', table_id=table_id) }}">
-    <button>Back to Menu</button>
-</a>
+    {% else %}
+        <p>Your cart is empty</p>
+    {% endif %}
 
-<br><br>
-<a href="/">Back to Home</a>
+    <br><br>
+
+    <!-- Navigation -->
+    <a href="{{ url_for('menu', table_id=table_id) }}">
+        <button>⬅ Back to Menu</button>
+    </a>
+
+    <br><br>
+
+    <a href="/">Back to Home</a>
 
 </body>
 </html>
