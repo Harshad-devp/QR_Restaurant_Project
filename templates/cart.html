@@ -1,47 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Your Order</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body style="font-family: Arial, sans-serif; padding: 20px;">
+<body>
 
-    <!-- Page Title -->
-    <h1>🧾 Your Order – Table {{ table_id }}</h1>
+<div class="container">
+
+    <div class="cart-header">
+        <h1>🧾 Your Order</h1>
+        <p class="subtitle">Table {{ table_id }}</p>
+    </div>
+
+    <hr>
 
     {% if cart %}
-        <!-- Cart Items -->
-        <ul>
-            {% for item in cart %}
-                <li>
-                    {{ item.name }}
-                    | Qty: {{ item.qty }}
-                    | Price: ₹{{ item.price }}
-                    | Total: ₹{{ item.total }}
-                </li>
-            {% endfor %}
-        </ul>
+    <div class="card">
+
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Price (₹)</th>
+                    <th>Total (₹)</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in cart %}
+                <tr>
+                    <td><strong>{{ item.name }}</strong></td>
+                    <td>{{ item.qty }}</td>
+                    <td>{{ item.price }}</td>
+                    <td>{{ item.total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
         <hr>
 
-        <!-- Grand Total -->
-        <strong>Grand Total: ₹{{ grand_total }}</strong>
+        <h3 class="grand-total">
+            💰 Grand Total: ₹{{ grand_total }}
+        </h3>
+        
+        <form action="{{ url_for('place_order') }}" method="POST">
+    <button type="submit" class="btn primary-btn">
+        ✅ Place Order
+    </button>
+</form>
+
+
+    </div>
 
     {% else %}
-        <p>Your cart is empty</p>
+        <p class="empty-msg">🛒 Your cart is empty</p>
     {% endif %}
 
-    <br><br>
+    <br>
 
-    <!-- Navigation -->
-    <a href="{{ url_for('menu', table_id=table_id) }}">
-        <button>⬅ Back to Menu</button>
-    </a>
+    <div class="btn-group">
+        <a href="{{ url_for('menu', table_id=table_id) }}" class="btn primary-btn">
+            ⬅ Back to Menu
+        </a>
 
-    <br><br>
+        <a href="/" class="btn secondary-btn">
+            🏠 Home
+        </a>
+    </div>
 
-    <a href="/">Back to Home</a>
+</div>
 
 </body>
 </html>

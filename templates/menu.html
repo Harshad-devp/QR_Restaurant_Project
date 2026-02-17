@@ -1,71 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Restaurant Menu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+<body>
 
-<body style="font-family: Arial, sans-serif; padding: 20px;">
+<div class="container">
 
-    <!-- Page Title -->
-    <h1>🍽️ Restaurant Menu – Table {{ table_id }}</h1>
-
-    <hr>
-
-    <!-- Menu Section -->
-    <h2>Menu</h2>
-    <ul>
-        {% for item in menu %}
-            <li>
-                {{ item.name }} – ₹{{ item.price }}
-                <a href="{{ url_for('add_to_cart', item_id=item.id) }}">
-                    <button>Add to Order</button>
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
+    <div class="menu-header">
+        <h1>🍽️ Restaurant Menu</h1>
+        <p class="subtitle">Table {{ table_id }}</p>
+    </div>
 
     <hr>
 
-    <!-- Cart Section -->
-    <h2>Your Cart</h2>
-
-    {% if tables and table_id|string in tables %}
-        {% set cart = tables[table_id|string] %}
-        {% set ns = namespace(total=0) %}
-
-        <ul>
-            {% for item_id, data in cart.items() %}
-                {% for item in menu %}
-                    {% if item.id == item_id|int %}
-                        <li>
-                            {{ item.name }}
-                            | Qty: {{ data.qty }}
-                            | ₹{{ data.price * data.qty }}
-                            <a href="{{ url_for('remove_from_cart', item_id=item.id) }}">❌</a>
-                        </li>
-                        {% set ns.total = ns.total + (data.price * data.qty) %}
-                    {% endif %}
-                {% endfor %}
+    <!-- PASTA -->
+    <div class="card">
+        <h2 class="section-title">🍝 Pasta</h2>
+        <div class="menu-grid small-grid">
+            {% for item in menu %}
+                {% if item.category == "Pasta" %}
+                <div class="menu-card small-card">
+                    <h3>{{ item.name }}</h3>
+                    <p class="price">₹{{ item.price }}</p>
+                    <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn small-btn">
+                        ➕ Add
+                    </a>
+                </div>
+                {% endif %}
             {% endfor %}
-        </ul>
-
-        <strong>Grand Total: ₹{{ ns.total }}</strong>
-
-    {% else %}
-        <p>Cart is empty</p>
-    {% endif %}
+        </div>
+    </div>
 
     <hr>
 
-    <!-- Navigation Buttons -->
-    <a href="{{ url_for('cart') }}">
-        <button>View Cart</button>
-    </a>
+    <!-- PIZZA -->
+    <div class="card">
+        <h2 class="section-title">🍕 Pizza</h2>
+        <div class="menu-grid small-grid">
+            {% for item in menu %}
+                {% if item.category == "Pizza" %}
+                <div class="menu-card small-card">
+                    <h3>{{ item.name }}</h3>
+                    <p class="price">₹{{ item.price }}</p>
+                    <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn small-btn">
+                        ➕ Add
+                    </a>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
 
-    <br><br>
+    <hr>
 
-    <a href="/">⬅ Back to Home</a>
+    <!-- BEVERAGE -->
+    <div class="card">
+        <h2 class="section-title">🥤 Beverage</h2>
+        <div class="menu-grid small-grid">
+            {% for item in menu %}
+                {% if item.category == "Beverage" %}
+                <div class="menu-card small-card">
+                    <h3>{{ item.name }}</h3>
+                    <p class="price">₹{{ item.price }}</p>
+                    <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn small-btn">
+                        ➕ Add
+                    </a>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
 
+    <hr>
+
+    <!-- CART PREVIEW -->
+    <div class="card">
+        <h2>🛒 Your Cart</h2>
+
+        {% if tables and table_id|string in tables %}
+            {% set cart = tables[table_id|string] %}
+            {% for item_id, data in cart.items() %}
+                <div class="cart-item">
+                    <div>
+                        <strong>{{ data.name }}</strong><br>
+                        Qty: {{ data.qty }}
+                    </div>
+                    <div>
+                        <a href="{{ url_for('decrease_item', item_id=item_id) }}" class="qty-btn minus">−</a>
+                        <a href="{{ url_for('increase_item', item_id=item_id) }}" class="qty-btn plus">+</a>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="cart-buttons">
+                <a href="{{ url_for('cart') }}" class="btn">View Full Cart</a>
+                <a href="/" class="btn secondary-btn">⬅ Back to Home</a>
+            </div>
+
+        {% else %}
+            <p class="empty-msg">Cart is empty</p>
+        {% endif %}
+    </div>
+
+</div>
 </body>
 </html>

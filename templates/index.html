@@ -2,34 +2,41 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Restaurant Ordering System</title>
+
+    <!-- CSS FILE LINK -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body style="background-color:#e6fffa; font-family: Arial, sans-serif; padding: 20px;">
+<body>
 
-    <!-- Header -->
-    <h1 style="color: green;">🍽️ QR Restaurant Ordering System</h1>
-    <p>Select your table to view the menu and place your order</p>
+<div class="container">
+
+    <h1>🍽️ QR Restaurant Ordering System</h1>
+    <p class="subtitle">
+        Select your table to view the menu and place your order
+    </p>
 
     <hr>
 
-    <!-- Table Selection -->
     <h2>Available Tables</h2>
 
-    <ul>
-        <li><a href="/menu/1">Table 1</a></li>
-        <li><a href="/menu/2">Table 2</a></li>
-        <li><a href="/menu/3">Table 3</a></li>
-        <li><a href="/menu/4">Table 4</a></li>
-        <li><a href="/menu/5">Table 5</a></li>
+    <ul class="table-list">
+        <li><a href="{{ url_for('menu', table_id=1) }}">Table 1</a></li>
+        <li><a href="{{ url_for('menu', table_id=2) }}">Table 2</a></li>
+        <li><a href="{{ url_for('menu', table_id=3) }}">Table 3</a></li>
+        <li><a href="{{ url_for('menu', table_id=4) }}">Table 4</a></li>
+        <li><a href="{{ url_for('menu', table_id=5) }}">Table 5</a></li>
     </ul>
 
     <hr>
 
-    <!-- Footer Note -->
-    <p style="color: gray;">
+    <p class="footer-text">
         📱 Scan the QR code on your table or select your table number to begin ordering.
     </p>
+
+</div>
 
 </body>
 </html>
