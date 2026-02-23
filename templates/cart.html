@@ -34,25 +34,25 @@
                 <tr>
                     <td><strong>{{ item.name }}</strong></td>
                     <td>{{ item.qty }}</td>
-                    <td>{{ item.price }}</td>
-                    <td>{{ item.total }}</td>
+                    <td>₹{{ item.price }}</td>
+                    <td>₹{{ item.total }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
 
-        <hr>
+        <!-- ============================= -->
+        <!-- CART SUMMARY -->
+        <!-- ============================= -->
+        <div class="cart-summary">
+            <h3>💰 Grand Total: ₹{{ grand_total }}</h3>
 
-        <h3 class="grand-total">
-            💰 Grand Total: ₹{{ grand_total }}
-        </h3>
-        
-        <form action="{{ url_for('place_order') }}" method="POST">
-    <button type="submit" class="btn primary-btn">
-        ✅ Place Order
-    </button>
-</form>
-
+            <form action="{{ url_for('place_order') }}" method="POST">
+                <button type="submit" class="btn primary-btn">
+                    ✅ Place Order
+                </button>
+            </form>
+        </div>
 
     </div>
 

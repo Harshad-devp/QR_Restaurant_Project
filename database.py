@@ -10,17 +10,22 @@ def get_db_connection():
 def init_db():
     conn = get_db_connection()
 
-    # MENU TABLE
+    # =============================
+    # MENU TABLE (UPDATED WITH IMAGE)
+    # =============================
     conn.execute("""
         CREATE TABLE IF NOT EXISTS menu (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             price REAL NOT NULL,
-            category TEXT NOT NULL
+            category TEXT NOT NULL,
+            image TEXT NOT NULL
         )
     """)
 
+    # =============================
     # ORDERS TABLE
+    # =============================
     conn.execute("""
         CREATE TABLE IF NOT EXISTS orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,7 +34,9 @@ def init_db():
         )
     """)
 
+    # =============================
     # ORDER ITEMS TABLE
+    # =============================
     conn.execute("""
         CREATE TABLE IF NOT EXISTS order_items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

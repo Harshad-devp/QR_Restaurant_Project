@@ -4,7 +4,8 @@
     <title>Restaurant Menu</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+
+<body class="menu-bg">
 
 <div class="container">
 
@@ -15,72 +16,102 @@
 
     <hr>
 
+    <!-- ============================= -->
     <!-- PASTA -->
+    <!-- ============================= -->
     <div class="card">
         <h2 class="section-title">🍝 Pasta</h2>
-        <div class="menu-grid small-grid">
+        <div class="menu-grid">
+
             {% for item in menu %}
                 {% if item.category == "Pasta" %}
-                <div class="menu-card small-card">
+                <div class="menu-card">
+
+                    <img src="{{ url_for('static', filename=item.image) }}" class="menu-img">
+
                     <h3>{{ item.name }}</h3>
                     <p class="price">₹{{ item.price }}</p>
-                    <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn small-btn">
+
+                    <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn">
                         ➕ Add
                     </a>
+
                 </div>
                 {% endif %}
             {% endfor %}
+
         </div>
     </div>
 
     <hr>
 
+    <!-- ============================= -->
     <!-- PIZZA -->
+    <!-- ============================= -->
     <div class="card">
         <h2 class="section-title">🍕 Pizza</h2>
-        <div class="menu-grid small-grid">
+        <div class="menu-grid">
+
             {% for item in menu %}
                 {% if item.category == "Pizza" %}
-                <div class="menu-card small-card">
+                <div class="menu-card">
+
+                    <img src="{{ url_for('static', filename=item.image) }}" class="menu-img">
+
                     <h3>{{ item.name }}</h3>
                     <p class="price">₹{{ item.price }}</p>
-                    <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn small-btn">
+
+                    <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn">
                         ➕ Add
                     </a>
+
                 </div>
                 {% endif %}
             {% endfor %}
+
         </div>
     </div>
 
     <hr>
 
+    <!-- ============================= -->
     <!-- BEVERAGE -->
+    <!-- ============================= -->
     <div class="card">
         <h2 class="section-title">🥤 Beverage</h2>
-        <div class="menu-grid small-grid">
+        <div class="menu-grid">
+
             {% for item in menu %}
                 {% if item.category == "Beverage" %}
-                <div class="menu-card small-card">
+                <div class="menu-card">
+
+                    <img src="{{ url_for('static', filename=item.image) }}" class="menu-img">
+
                     <h3>{{ item.name }}</h3>
                     <p class="price">₹{{ item.price }}</p>
-                    <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn small-btn">
+
+                    <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn">
                         ➕ Add
                     </a>
+
                 </div>
                 {% endif %}
             {% endfor %}
+
         </div>
     </div>
 
     <hr>
 
+    <!-- ============================= -->
     <!-- CART PREVIEW -->
+    <!-- ============================= -->
     <div class="card">
         <h2>🛒 Your Cart</h2>
 
         {% if tables and table_id|string in tables %}
             {% set cart = tables[table_id|string] %}
+
             {% for item_id, data in cart.items() %}
                 <div class="cart-item">
                     <div>
@@ -94,10 +125,8 @@
                 </div>
             {% endfor %}
 
-            <div class="cart-buttons">
-                <a href="{{ url_for('cart') }}" class="btn">View Full Cart</a>
-                <a href="/" class="btn secondary-btn">⬅ Back to Home</a>
-            </div>
+            <br>
+            <a href="{{ url_for('cart') }}" class="btn">View Full Cart</a>
 
         {% else %}
             <p class="empty-msg">Cart is empty</p>
@@ -105,5 +134,6 @@
     </div>
 
 </div>
+
 </body>
 </html>

@@ -23,7 +23,11 @@
 
         <h2>➕ Add New Menu Item</h2>
 
-        <form action="{{ url_for('admin_add_item') }}" method="POST" class="admin-form">
+        <!-- 🔥 IMPORTANT enctype added -->
+        <form action="{{ url_for('admin_add_item') }}" 
+              method="POST" 
+              enctype="multipart/form-data" 
+              class="admin-form">
 
             <div class="form-group">
                 <label>Item Name</label>
@@ -43,6 +47,12 @@
                     <option value="Pizza">Pizza</option>
                     <option value="Beverage">Beverage</option>
                 </select>
+            </div>
+
+            <!-- ✅ FILE UPLOAD FIELD -->
+            <div class="form-group">
+                <label>Upload Menu Image</label>
+                <input type="file" name="image" accept=".jpg,.jpeg,.png" required>
             </div>
 
             <button type="submit" class="btn primary-btn">
@@ -69,6 +79,7 @@
                         <th>Name</th>
                         <th>Price</th>
                         <th>Category</th>
+                        <th>Image</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -79,6 +90,11 @@
                         <td>{{ item.name }}</td>
                         <td>₹{{ item.price }}</td>
                         <td>{{ item.category }}</td>
+                        <td>
+                            <img src="{{ url_for('static', filename=item.image) }}" 
+                                 width="60" 
+                                 style="border-radius:6px;">
+                        </td>
                         <td>
                             <a href="{{ url_for('admin_delete_item', item_id=item.id) }}"
                                class="btn danger-btn">
@@ -113,7 +129,6 @@
                     <strong>Table:</strong> {{ order.table_id }} <br>
                     <strong>Total:</strong> ₹{{ order.total }}
 
-                    <!-- 🔥 MARK AS SERVED BUTTON ADDED HERE -->
                     <br><br>
                     <a href="{{ url_for('complete_order', order_id=order.id) }}" 
                        class="btn danger-btn">

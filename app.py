@@ -1,12 +1,17 @@
 from flask import Flask, render_template, session, redirect, url_for, request
 from database import init_db, get_db_connection
+import os
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
+UPLOAD_FOLDER = "static/uploads"
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
 
 # =================================================
-# Home Page
+# HOME PAGE
 # =================================================
 @app.route("/")
 def home():
@@ -14,7 +19,7 @@ def home():
 
 
 # =================================================
-# Menu Page
+# MENU PAGE
 # =================================================
 @app.route("/menu/<int:table_id>")
 def menu(table_id):
@@ -34,7 +39,7 @@ def menu(table_id):
 
 
 # =================================================
-# Add Item to Cart
+# ADD ITEM TO CART
 # =================================================
 @app.route("/add/<int:item_id>")
 def add_to_cart(item_id):
@@ -78,7 +83,7 @@ def add_to_cart(item_id):
 
 
 # =================================================
-# Increase Quantity
+# INCREASE QUANTITY
 # =================================================
 @app.route("/increase/<int:item_id>")
 def increase_item(item_id):
@@ -101,7 +106,7 @@ def increase_item(item_id):
 
 
 # =================================================
-# Decrease Quantity
+# DECREASE QUANTITY
 # =================================================
 @app.route("/decrease/<int:item_id>")
 def decrease_item(item_id):
@@ -127,7 +132,7 @@ def decrease_item(item_id):
 
 
 # =================================================
-# Cart Page
+# CART PAGE
 # =================================================
 @app.route("/cart")
 def cart():
@@ -162,7 +167,7 @@ def cart():
 
 
 # =================================================
-# Place Order
+# PLACE ORDER
 # =================================================
 @app.route("/place_order", methods=["POST"])
 def place_order():
@@ -182,19 +187,16 @@ def place_order():
 
     conn = get_db_connection()
 
-    # Calculate total
     grand_total = sum(
         data["price"] * data["qty"] for data in cart.values()
     )
 
-    # Insert order
     cursor = conn.execute(
         "INSERT INTO orders (table_id, total) VALUES (?, ?)",
         (table_id, grand_total)
     )
     order_id = cursor.lastrowid
 
-    # Insert order items
     for data in cart.values():
         conn.execute(
             "INSERT INTO order_items (order_id, item_name, qty, price) VALUES (?, ?, ?, ?)",
@@ -204,7 +206,6 @@ def place_order():
     conn.commit()
     conn.close()
 
-    # Clear cart
     session["tables"][table_id] = {}
     session.modified = True
 
@@ -212,7 +213,7 @@ def place_order():
 
 
 # =================================================
-# Admin Dashboard
+# ADMIN DASHBOARD
 # =================================================
 @app.route("/admin")
 def admin_dashboard():
@@ -220,7 +221,7 @@ def admin_dashboard():
     conn = get_db_connection()
 
     menu_items = conn.execute(
-        "SELECT id, name, price, category FROM menu"
+        "SELECT id, name, price, category, image FROM menu"
     ).fetchall()
 
     orders = conn.execute(
@@ -248,7 +249,7 @@ def admin_dashboard():
 
 
 # =================================================
-# Admin Add Item
+# ADMIN ADD ITEM (UPLOAD IMAGE)
 # =================================================
 @app.route("/admin/add", methods=["POST"])
 def admin_add_item():
@@ -256,14 +257,24 @@ def admin_add_item():
     name = request.form.get("name")
     price = request.form.get("price")
     category = request.form.get("category")
+    image_file = request.files.get("image")
 
-    if not name or not price or not category:
+    if not name or not price or not category or not image_file:
         return redirect(url_for("admin_dashboard"))
+
+    filename = secure_filename(image_file.filename)
+
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    image_file.save(file_path)
+
+    db_image_path = f"uploads/{filename}"
 
     conn = get_db_connection()
     conn.execute(
-        "INSERT INTO menu (name, price, category) VALUES (?, ?, ?)",
-        (name, price, category)
+        "INSERT INTO menu (name, price, category, image) VALUES (?, ?, ?, ?)",
+        (name, price, category, db_image_path)
     )
     conn.commit()
     conn.close()
@@ -272,7 +283,7 @@ def admin_add_item():
 
 
 # =================================================
-# Admin Delete Item
+# ADMIN DELETE ITEM
 # =================================================
 @app.route("/admin/delete/<int:item_id>")
 def admin_delete_item(item_id):
@@ -284,9 +295,8 @@ def admin_delete_item(item_id):
 
     return redirect(url_for("admin_dashboard"))
 
-
 # =================================================
-# Complete Order (Mark as Served)
+# COMPLETE ORDER (MARK AS SERVED)
 # =================================================
 @app.route("/admin/complete_order/<int:order_id>")
 def complete_order(order_id):
@@ -308,9 +318,8 @@ def complete_order(order_id):
 
     return redirect(url_for("admin_dashboard"))
 
-
 # =================================================
-# Run Server
+# RUN SERVER
 # =================================================
 if __name__ == "__main__":
     init_db()
