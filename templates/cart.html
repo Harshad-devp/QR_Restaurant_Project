@@ -41,17 +41,42 @@
             </tbody>
         </table>
 
-        <!-- ============================= -->
-        <!-- CART SUMMARY -->
-        <!-- ============================= -->
-        <div class="cart-summary">
-            <h3>💰 Grand Total: ₹{{ grand_total }}</h3>
+        <hr>
 
-            <form action="{{ url_for('place_order') }}" method="POST">
+        <!-- ============================= -->
+        <!-- BILLING BREAKDOWN -->
+        <!-- ============================= -->
+
+        <div class="billing-section">
+
+            <div class="bill-row">
+                <span>Subtotal</span>
+                <span>₹{{ grand_total }}</span>
+            </div>
+
+            <div class="bill-row">
+                <span>GST (5%)</span>
+                <span>₹{{ gst }}</span>
+            </div>
+
+            <hr class="bill-divider">
+
+            <div class="bill-row final-total">
+                <span>Final Total</span>
+                <span>₹{{ final_total }}</span>
+            </div>
+
+            <form action="{{ url_for('place_order') }}" method="POST" style="margin-top:15px;">
+                <label>📝 Special Instructions:</label>
+                <textarea name="note" rows="3"
+                          placeholder="Example: Pasta spicy banana..."
+                          style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #ccc;"></textarea>
+
                 <button type="submit" class="btn primary-btn">
                     ✅ Place Order
                 </button>
             </form>
+
         </div>
 
     </div>

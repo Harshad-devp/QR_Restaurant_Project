@@ -11,7 +11,7 @@ def init_db():
     conn = get_db_connection()
 
     # =============================
-    # MENU TABLE (UPDATED WITH IMAGE)
+    # MENU TABLE (WITH IMAGE)
     # =============================
     conn.execute("""
         CREATE TABLE IF NOT EXISTS menu (
@@ -24,13 +24,14 @@ def init_db():
     """)
 
     # =============================
-    # ORDERS TABLE
+    # ORDERS TABLE (UPDATED WITH NOTE)
     # =============================
     conn.execute("""
         CREATE TABLE IF NOT EXISTS orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             table_id INTEGER NOT NULL,
-            total REAL NOT NULL
+            total REAL NOT NULL,
+            note TEXT
         )
     """)
 

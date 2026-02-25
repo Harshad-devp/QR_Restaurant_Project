@@ -125,9 +125,16 @@
             {% for order in orders %}
                 <div style="margin-bottom:20px; padding:15px; background:#f7f7f7; border-radius:8px;">
 
-                    <strong>Order ID:</strong> {{ order.id }} <br>
-                    <strong>Table:</strong> {{ order.table_id }} <br>
-                    <strong>Total:</strong> ₹{{ order.total }}
+                   <strong>Order ID:</strong> {{ order.id }} <br>
+<strong>Table:</strong> {{ order.table_id }} <br>
+<strong>Total:</strong> ₹{{ order.total }} <br>
+
+{% if order.note %}
+    <strong>📝 Special Instruction:</strong>
+    <span style="color:#A94442; font-weight:600;">
+        {{ order.note }}
+    </span>
+{% endif %}
 
                     <br><br>
                     <a href="{{ url_for('complete_order', order_id=order.id) }}" 

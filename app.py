@@ -88,10 +88,7 @@ def add_to_cart(item_id):
 @app.route("/increase/<int:item_id>")
 def increase_item(item_id):
 
-    if "table_id" not in session:
-        return redirect(url_for("home"))
-
-    table_id = str(session["table_id"])
+    table_id = str(session.get("table_id"))
 
     if "tables" in session and table_id in session["tables"]:
         cart = session["tables"][table_id]
@@ -99,7 +96,6 @@ def increase_item(item_id):
         if str(item_id) in cart:
             cart[str(item_id)]["qty"] += 1
 
-        session["tables"][table_id] = cart
         session.modified = True
 
     return redirect(url_for("menu", table_id=table_id))
@@ -111,10 +107,7 @@ def increase_item(item_id):
 @app.route("/decrease/<int:item_id>")
 def decrease_item(item_id):
 
-    if "table_id" not in session:
-        return redirect(url_for("home"))
-
-    table_id = str(session["table_id"])
+    table_id = str(session.get("table_id"))
 
     if "tables" in session and table_id in session["tables"]:
         cart = session["tables"][table_id]
@@ -125,14 +118,13 @@ def decrease_item(item_id):
             if cart[str(item_id)]["qty"] <= 0:
                 cart.pop(str(item_id))
 
-        session["tables"][table_id] = cart
         session.modified = True
 
     return redirect(url_for("menu", table_id=table_id))
 
 
 # =================================================
-# CART PAGE
+# CART PAGE (WITH GST 5%)
 # =================================================
 @app.route("/cart")
 def cart():
@@ -142,13 +134,13 @@ def cart():
 
     table_id = str(session["table_id"])
     cart_data = []
-    grand_total = 0
+    subtotal = 0
 
     if "tables" in session and table_id in session["tables"]:
 
         for item_id, data in session["tables"][table_id].items():
             total = data["price"] * data["qty"]
-            grand_total += total
+            subtotal += total
 
             cart_data.append({
                 "id": item_id,
@@ -158,16 +150,21 @@ def cart():
                 "total": total
             })
 
+    gst = round(subtotal * 0.05, 2)
+    final_total = round(subtotal + gst, 2)
+
     return render_template(
         "cart.html",
         cart=cart_data,
-        grand_total=grand_total,
+        grand_total=subtotal,
+        gst=gst,
+        final_total=final_total,
         table_id=table_id
     )
 
 
 # =================================================
-# PLACE ORDER
+# PLACE ORDER (SAVE NOTE + GST TOTAL)
 # =================================================
 @app.route("/place_order", methods=["POST"])
 def place_order():
@@ -187,16 +184,22 @@ def place_order():
 
     conn = get_db_connection()
 
-    grand_total = sum(
-        data["price"] * data["qty"] for data in cart.values()
-    )
+    # 🔥 NEW BILLING CALCULATION
+    subtotal = sum(data["price"] * data["qty"] for data in cart.values())
+    gst = round(subtotal * 0.05, 2)
+    final_total = round(subtotal + gst, 2)
 
+    # 🔥 GET SPECIAL NOTE FROM FORM
+    note = request.form.get("note")
+
+    # 🔥 INSERT ORDER WITH GST TOTAL + NOTE
     cursor = conn.execute(
-        "INSERT INTO orders (table_id, total) VALUES (?, ?)",
-        (table_id, grand_total)
+        "INSERT INTO orders (table_id, total, note) VALUES (?, ?, ?)",
+        (table_id, final_total, note)
     )
     order_id = cursor.lastrowid
 
+    # Insert order items
     for data in cart.values():
         conn.execute(
             "INSERT INTO order_items (order_id, item_name, qty, price) VALUES (?, ?, ?, ?)",
@@ -249,7 +252,7 @@ def admin_dashboard():
 
 
 # =================================================
-# ADMIN ADD ITEM (UPLOAD IMAGE)
+# ADMIN ADD ITEM (IMAGE UPLOAD)
 # =================================================
 @app.route("/admin/add", methods=["POST"])
 def admin_add_item():
@@ -263,7 +266,6 @@ def admin_add_item():
         return redirect(url_for("admin_dashboard"))
 
     filename = secure_filename(image_file.filename)
-
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
@@ -295,28 +297,23 @@ def admin_delete_item(item_id):
 
     return redirect(url_for("admin_dashboard"))
 
+
 # =================================================
-# COMPLETE ORDER (MARK AS SERVED)
+# COMPLETE ORDER
 # =================================================
 @app.route("/admin/complete_order/<int:order_id>")
 def complete_order(order_id):
 
     conn = get_db_connection()
 
-    conn.execute(
-        "DELETE FROM order_items WHERE order_id=?",
-        (order_id,)
-    )
-
-    conn.execute(
-        "DELETE FROM orders WHERE id=?",
-        (order_id,)
-    )
+    conn.execute("DELETE FROM order_items WHERE order_id=?", (order_id,))
+    conn.execute("DELETE FROM orders WHERE id=?", (order_id,))
 
     conn.commit()
     conn.close()
 
     return redirect(url_for("admin_dashboard"))
+
 
 # =================================================
 # RUN SERVER
