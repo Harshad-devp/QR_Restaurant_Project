@@ -1,3 +1,16 @@
-restaurant.db
+# Environment variables
+.env
+
+# Python cache
 __pycache__/
 *.pyc
+
+# Virtual environment
+venv/
+
+# Database
+restaurant.db
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -2,6 +2,11 @@ from flask import Flask, render_template, session, redirect, url_for, request
 from database import init_db, get_db_connection
 import os
 from werkzeug.utils import secure_filename
+import razorpay
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -124,7 +129,7 @@ def decrease_item(item_id):
 
 
 # =================================================
-# CART PAGE (WITH GST 5%)
+# CART PAGE (WITH GST 5% + RAZORPAY ORDER)
 # =================================================
 @app.route("/cart")
 def cart():
@@ -153,15 +158,23 @@ def cart():
     gst = round(subtotal * 0.05, 2)
     final_total = round(subtotal + gst, 2)
 
+    # Razorpay order creation
+    razorpay_order = client.order.create({
+        "amount": int(final_total * 100),
+        "currency": "INR",
+        "payment_capture": 1
+    })
+
     return render_template(
         "cart.html",
         cart=cart_data,
         grand_total=subtotal,
         gst=gst,
         final_total=final_total,
+        razorpay_order_id=razorpay_order["id"],
+        razorpay_key=RAZORPAY_KEY_ID,
         table_id=table_id
     )
-
 
 # =================================================
 # PLACE ORDER (SAVE NOTE + GST TOTAL)
@@ -220,6 +233,9 @@ def place_order():
 # =================================================
 @app.route("/admin")
 def admin_dashboard():
+
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
 
     conn = get_db_connection()
 
@@ -314,6 +330,37 @@ def complete_order(order_id):
 
     return redirect(url_for("admin_dashboard"))
 
+
+#rasor keys
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
+
+client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+
+
+# ================================
+# ADMIN LOGIN CREDENTIALS
+# ================================
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "1234"
+
+# =================================================
+# ADMIN LOGIN PAGE
+# =================================================
+@app.route("/admin_login", methods=["GET", "POST"])
+def admin_login():
+
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session["admin_logged_in"] = True
+            return redirect(url_for("admin_dashboard"))
+        else:
+            return render_template("admin_login.html", error="Invalid credentials")
+
+    return render_template("admin_login.html")
 
 # =================================================
 # RUN SERVER

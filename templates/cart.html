@@ -43,10 +43,7 @@
 
         <hr>
 
-        <!-- ============================= -->
-        <!-- BILLING BREAKDOWN -->
-        <!-- ============================= -->
-
+        <!-- BILLING -->
         <div class="billing-section">
 
             <div class="bill-row">
@@ -62,20 +59,19 @@
             <hr class="bill-divider">
 
             <div class="bill-row final-total">
-                <span>Final Total</span>
-                <span>₹{{ final_total }}</span>
+                <span><strong>Final Total</strong></span>
+                <span><strong>₹{{ final_total }}</strong></span>
             </div>
 
-            <form action="{{ url_for('place_order') }}" method="POST" style="margin-top:15px;">
-                <label>📝 Special Instructions:</label>
-                <textarea name="note" rows="3"
-                          placeholder="Example: Pasta spicy banana..."
-                          style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #ccc;"></textarea>
+            <label style="margin-top:15px;">📝 Special Instructions:</label>
+            <textarea id="note" rows="3"
+                placeholder="Example: Pasta spicy banana..."
+                style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #ccc;"></textarea>
 
-                <button type="submit" class="btn primary-btn">
-                    ✅ Place Order
-                </button>
-            </form>
+            <!-- PAY BUTTON -->
+            <button id="rzp-button" class="btn primary-btn">
+                💳 Pay ₹{{ final_total }}
+            </button>
 
         </div>
 
@@ -98,6 +94,51 @@
     </div>
 
 </div>
+
+<!-- Razorpay Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+
+var options = {
+    "key": "{{ razorpay_key }}",
+    "amount": "{{ final_total * 100 }}",
+    "currency": "INR",
+    "name": "QR Restaurant",
+    "description": "Table {{ table_id }} Order",
+    "order_id": "{{ razorpay_order_id }}",
+
+    "handler": function (response){
+
+        alert("Payment Successful!");
+
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/place_order";
+
+        var note = document.createElement("input");
+        note.type = "hidden";
+        note.name = "note";
+        note.value = document.getElementById("note").value;
+
+        form.appendChild(note);
+        document.body.appendChild(form);
+        form.submit();
+    },
+
+    "theme": {
+        "color": "#2B2B2B"
+    }
+};
+
+var rzp1 = new Razorpay(options);
+
+document.getElementById('rzp-button').onclick = function(e){
+    rzp1.open();
+    e.preventDefault();
+}
+
+</script>
 
 </body>
 </html>
