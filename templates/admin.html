@@ -1,182 +1,228 @@
 <!DOCTYPE html>
+
 <html>
 <head>
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+
+/* Scroll for menu items table */
+
+.table-scroll{
+    max-height:400px;
+    overflow-y:auto;
+}
+
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-    <div class="admin-header">
-        <h1>🛠 Restaurant Admin Dashboard</h1>
-        <p class="subtitle">Menu & Orders Management</p>
-    </div>
+<div class="admin-header">
+    <h1>🛠 Restaurant Admin Dashboard</h1>
+    <p class="subtitle">Menu & Orders Management</p>
+</div>
 
-    <hr>
+<hr>
 
-    <!-- ============================= -->
-    <!-- ADD NEW MENU ITEM -->
-    <!-- ============================= -->
-    <div class="card">
+<!-- ============================= -->
+<!-- ADD NEW MENU ITEM -->
+<!-- ============================= -->
 
-        <h2>➕ Add New Menu Item</h2>
+<div class="card">
 
-        <!-- 🔥 IMPORTANT enctype added -->
-        <form action="{{ url_for('admin_add_item') }}" 
-              method="POST" 
-              enctype="multipart/form-data" 
-              class="admin-form">
+    <h2>➕ Add New Menu Item</h2>
 
-            <div class="form-group">
-                <label>Item Name</label>
-                <input type="text" name="name" placeholder="Enter item name" required>
-            </div>
+    <form action="{{ url_for('admin_add_item') }}" 
+          method="POST" 
+          enctype="multipart/form-data" 
+          class="admin-form">
 
-            <div class="form-group">
-                <label>Price (₹)</label>
-                <input type="number" name="price" placeholder="Enter price" required>
-            </div>
-
-            <div class="form-group">
-                <label>Category</label>
-                <select name="category" required>
-                    <option value="">Select Category</option>
-                    <option value="Pasta">Pasta</option>
-                    <option value="Pizza">Pizza</option>
-                    <option value="Beverage">Beverage</option>
-                </select>
-            </div>
-
-            <!-- ✅ FILE UPLOAD FIELD -->
-            <div class="form-group">
-                <label>Upload Menu Image</label>
-                <input type="file" name="image" accept=".jpg,.jpeg,.png" required>
-            </div>
-
-            <button type="submit" class="btn primary-btn">
-                ➕ Add Item
-            </button>
-
-        </form>
-    </div>
-
-    <hr>
-
-    <!-- ============================= -->
-    <!-- EXISTING MENU ITEMS -->
-    <!-- ============================= -->
-    <div class="card">
-
-        <h2>📋 Existing Menu Items</h2>
-
-        {% if menu %}
-        <div class="table-wrapper">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Category</th>
-                        <th>Image</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for item in menu %}
-                    <tr>
-                        <td>{{ item.name }}</td>
-                        <td>₹{{ item.price }}</td>
-                        <td>{{ item.category }}</td>
-                        <td>
-                            <img src="{{ url_for('static', filename=item.image) }}" 
-                                 width="60" 
-                                 style="border-radius:6px;">
-                        </td>
-                        <td>
-                            <a href="{{ url_for('admin_delete_item', item_id=item.id) }}"
-                               class="btn danger-btn">
-                               🗑 Delete
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="form-group">
+            <label>Item Name</label>
+            <input type="text" name="name" placeholder="Enter item name" required>
         </div>
-        {% else %}
-            <p class="empty-msg">No menu items found.</p>
-        {% endif %}
 
-    </div>
+        <div class="form-group">
+            <label>Price (₹)</label>
+            <input type="number" name="price" placeholder="Enter price" required>
+        </div>
 
-    <hr>
+        <!-- CATEGORY TEXT INPUT (NEW) -->
 
-    <!-- ============================= -->
-    <!-- TABLE ORDERS -->
-    <!-- ============================= -->
-    <div class="card">
+        <div class="form-group">
+            <label>Category</label>
+            <input type="text" 
+                   name="category" 
+                   placeholder="Enter category (Pasta, Pizza, Breads, etc.)"
+                   required>
+        </div>
 
-        <h2>📦 Table Orders</h2>
+        <div class="form-group">
+            <label>Upload Menu Image</label>
+            <input type="file" name="image" accept=".jpg,.jpeg,.png" required>
+        </div>
 
-        {% if orders %}
-            {% for order in orders %}
-                <div style="margin-bottom:20px; padding:15px; background:#f7f7f7; border-radius:8px;">
+        <button type="submit" class="btn primary-btn">
+            ➕ Add Item
+        </button>
 
-                   <strong>Order ID:</strong> {{ order.id }} <br>
-<strong>Table:</strong> {{ order.table_id }} <br>
-<strong>Total:</strong> ₹{{ order.total }} <br>
+    </form>
 
-{% if order.note %}
-    <strong>📝 Special Instruction:</strong>
-    <span style="color:#A94442; font-weight:600;">
-        {{ order.note }}
-    </span>
-{% endif %}
+</div>
 
-                    <br><br>
-                    <a href="{{ url_for('complete_order', order_id=order.id) }}" 
+<hr>
+
+<!-- ============================= -->
+<!-- TABLE ORDERS (MOVED UP) -->
+<!-- ============================= -->
+
+<div class="card">
+
+    <h2>📦 Table Orders</h2>
+
+    {% if orders %}
+
+        {% for order in orders %}
+
+            <div style="margin-bottom:20px;padding:15px;background:#f7f7f7;border-radius:8px;">
+
+                <strong>Order ID:</strong> {{ order.id }} <br>
+                <strong>Table:</strong> {{ order.table_id }} <br>
+                <strong>Total:</strong> ₹{{ order.total }} <br>
+
+                {% if order.note %}
+                <strong>📝 Special Instruction:</strong>
+                <span style="color:#A94442;font-weight:600;">
+                    {{ order.note }}
+                </span>
+                {% endif %}
+
+                <br><br>
+
+                <a href="{{ url_for('complete_order', order_id=order.id) }}" 
+                   class="btn danger-btn">
+                   ✅ Mark as Served
+                </a>
+
+                <br><br>
+
+                <table class="admin-table">
+
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Price (₹)</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    {% for item in order_details[order.id] %}
+
+                        <tr>
+                            <td>{{ item.item_name }}</td>
+                            <td>{{ item.qty }}</td>
+                            <td>₹{{ item.price }}</td>
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>No orders yet.</p>
+
+    {% endif %}
+
+</div>
+
+<hr>
+
+<!-- ============================= -->
+<!-- EXISTING MENU ITEMS -->
+<!-- ============================= -->
+
+<div class="card">
+
+    <h2>📋 Existing Menu Items</h2>
+
+    {% if menu %}
+
+    <div class="table-scroll">
+
+    <table class="admin-table">
+
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Category</th>
+                <th>Image</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for item in menu %}
+
+            <tr>
+
+                <td>{{ item.name }}</td>
+                <td>₹{{ item.price }}</td>
+                <td>{{ item.category }}</td>
+
+                <td>
+                    <img src="{{ url_for('static', filename=item.image) }}" 
+                         width="60"
+                         style="border-radius:6px;">
+                </td>
+
+                <td>
+
+                    <a href="{{ url_for('admin_delete_item', item_id=item.id) }}"
                        class="btn danger-btn">
-                       ✅ Mark as Served
+
+                       🗑 Delete
+
                     </a>
 
-                    <br><br>
+                </td>
 
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Qty</th>
-                                <th>Price (₹)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in order_details[order.id] %}
-                            <tr>
-                                <td>{{ item.item_name }}</td>
-                                <td>{{ item.qty }}</td>
-                                <td>₹{{ item.price }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            </tr>
 
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No orders yet.</p>
-        {% endif %}
+        {% endfor %}
+
+        </tbody>
+
+    </table>
 
     </div>
 
-    <br>
+    {% else %}
 
-    <a href="/" class="btn secondary-btn">
-        ⬅ Back to Home
-    </a>
+        <p class="empty-msg">No menu items found.</p>
 
+    {% endif %}
+
+</div>
+
+<br>
+
+<a href="/" class="btn secondary-btn">
+    ⬅ Back to Home
+</a>
 </div>
 
 </body>

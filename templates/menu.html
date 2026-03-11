@@ -9,130 +9,153 @@
 
 <div class="container">
 
-    <div class="menu-header">
-        <h1>🍽️ Restaurant Menu</h1>
-        <p class="subtitle">Table {{ table_id }}</p>
-    </div>
+<div class="menu-header">
+    <h1>🍽️ Restaurant Menu</h1>
+    <p class="subtitle">Table {{ table_id }}</p>
+</div>
 
-    <hr>
+<hr>
 
-    <!-- ============================= -->
-    <!-- PASTA -->
-    <!-- ============================= -->
-    <div class="card">
-        <h2 class="section-title">🍝 Pasta</h2>
-        <div class="menu-grid">
+<!-- ============================= -->
+<!-- PASTA -->
+<!-- ============================= -->
+<div class="card">
+    <h2 class="section-title">🍝 Pasta</h2>
 
-            {% for item in menu %}
-                {% if item.category == "Pasta" %}
-                <div class="menu-card">
+    <div class="menu-grid">
 
-                    <img src="{{ url_for('static', filename=item.image) }}" class="menu-img">
+    {% for item in menu %}
+    {% if item.category == "Pasta" %}
 
-                    <h3>{{ item.name }}</h3>
-                    <p class="price">₹{{ item.price }}</p>
+    <div class="menu-card">
 
-                    <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn">
-                        ➕ Add
-                    </a>
+        <img src="{{ url_for('static', filename=item.image) }}" class="menu-img">
 
-                </div>
-                {% endif %}
-            {% endfor %}
-
+        <div class="menu-info">
+            <h3>{{ item.name }}</h3>
+            <p class="price">₹{{ item.price }}</p>
         </div>
+
+        <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn">
+            ➕ Add
+        </a>
+
     </div>
 
-    <hr>
+    {% endif %}
+    {% endfor %}
 
-    <!-- ============================= -->
-    <!-- PIZZA -->
-    <!-- ============================= -->
-    <div class="card">
-        <h2 class="section-title">🍕 Pizza</h2>
-        <div class="menu-grid">
+    </div>
+</div>
 
-            {% for item in menu %}
-                {% if item.category == "Pizza" %}
-                <div class="menu-card">
+<hr>
 
-                    <img src="{{ url_for('static', filename=item.image) }}" class="menu-img">
+<!-- ============================= -->
+<!-- PIZZA -->
+<!-- ============================= -->
+<div class="card">
+    <h2 class="section-title">🍕 Pizza</h2>
 
-                    <h3>{{ item.name }}</h3>
-                    <p class="price">₹{{ item.price }}</p>
+    <div class="menu-grid">
 
-                    <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn">
-                        ➕ Add
-                    </a>
+    {% for item in menu %}
+    {% if item.category == "Pizza" %}
 
-                </div>
-                {% endif %}
-            {% endfor %}
+    <div class="menu-card">
 
+        <img src="{{ url_for('static', filename=item.image) }}" class="menu-img">
+
+        <div class="menu-info">
+            <h3>{{ item.name }}</h3>
+            <p class="price">₹{{ item.price }}</p>
         </div>
+
+        <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn">
+            ➕ Add
+        </a>
+
     </div>
 
-    <hr>
+    {% endif %}
+    {% endfor %}
 
-    <!-- ============================= -->
-    <!-- BEVERAGE -->
-    <!-- ============================= -->
-    <div class="card">
-        <h2 class="section-title">🥤 Beverage</h2>
-        <div class="menu-grid">
+    </div>
+</div>
 
-            {% for item in menu %}
-                {% if item.category == "Beverage" %}
-                <div class="menu-card">
+<hr>
 
-                    <img src="{{ url_for('static', filename=item.image) }}" class="menu-img">
+<!-- ============================= -->
+<!-- BEVERAGE -->
+<!-- ============================= -->
+<div class="card">
+    <h2 class="section-title">🥤 Beverage</h2>
 
-                    <h3>{{ item.name }}</h3>
-                    <p class="price">₹{{ item.price }}</p>
+    <div class="menu-grid">
 
-                    <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn">
-                        ➕ Add
-                    </a>
+    {% for item in menu %}
+    {% if item.category == "Beverage" %}
 
-                </div>
-                {% endif %}
-            {% endfor %}
+    <div class="menu-card">
 
+        <img src="{{ url_for('static', filename=item.image) }}" class="menu-img">
+
+        <div class="menu-info">
+            <h3>{{ item.name }}</h3>
+            <p class="price">₹{{ item.price }}</p>
         </div>
+
+        <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn">
+            ➕ Add
+        </a>
+
     </div>
 
-    <hr>
+    {% endif %}
+    {% endfor %}
 
-    <!-- ============================= -->
-    <!-- CART PREVIEW -->
-    <!-- ============================= -->
-    <div class="card">
-        <h2>🛒 Your Cart</h2>
+    </div>
+</div>
 
-        {% if tables and table_id|string in tables %}
-            {% set cart = tables[table_id|string] %}
+<hr>
 
-            {% for item_id, data in cart.items() %}
-                <div class="cart-item">
-                    <div>
-                        <strong>{{ data.name }}</strong><br>
-                        Qty: {{ data.qty }}
-                    </div>
-                    <div>
-                        <a href="{{ url_for('decrease_item', item_id=item_id) }}" class="qty-btn minus">−</a>
-                        <a href="{{ url_for('increase_item', item_id=item_id) }}" class="qty-btn plus">+</a>
-                    </div>
-                </div>
-            {% endfor %}
+<!-- ============================= -->
+<!-- CART PREVIEW -->
+<!-- ============================= -->
 
-            <br>
-            <a href="{{ url_for('cart') }}" class="btn">View Full Cart</a>
+<div class="card">
+    <h2>🛒 Your Cart</h2>
 
-        {% else %}
-            <p class="empty-msg">Cart is empty</p>
-        {% endif %}
+    {% if tables and table_id|string in tables %}
+
+    {% set cart = tables[table_id|string] %}
+
+    {% for item_id, data in cart.items() %}
+
+    <div class="cart-item">
+
+        <div>
+            <strong>{{ data.name }}</strong><br>
+            Qty: {{ data.qty }}
+        </div>
+
+        <div>
+            <a href="{{ url_for('decrease_item', item_id=item_id) }}" class="qty-btn minus">−</a>
+            <a href="{{ url_for('increase_item', item_id=item_id) }}" class="qty-btn plus">+</a>
+        </div>
+
     </div>
 
+    {% endfor %}
+
+    <br>
+    <a href="{{ url_for('cart') }}" class="btn">View Full Cart</a>
+
+    {% else %}
+
+    <p class="empty-msg">Cart is empty</p>
+
+    {% endif %}
+</div>
 </div>
 
 </body>
